@@ -3,47 +3,78 @@
 #-----------------------------------------------
 
 import shapefile
+import math
 
 # variables
-path = "FolderPath"
-polyline = "COASTLINE.shp" 
+path = "G:/Github/5uperReshape/test_file/"
+polyline = "COASTLINE_clip.shp"
 polygon = "COASTLINE_Polygon.shp"
+newPolygon = "COASTLINE_Polygon_New.shp"
 
 # load files
 # polyline
-pl = shapefile.Reader(path+polyline)
+pl = shapefile.Reader(path + polyline)
 # polygon (to reshaped)
-plg = shapefile.Reader(path+polygon)
+plg = shapefile.Editor(path + polygon)
 
 
 # get x,y range for one section(490) in pl
 s_pl = pl.shape(490)
-maxx = s_pl.points[0][0]
-maxy = s_pl.points[0][1]
-minx = s_pl.points[0][0]
-miny = s_pl.points[1][1]
-for i in range(len(s_pl.points)):
-        x = s_pl.points[i][0]
-        y = s_pl.points[i][1]
-        if x > maxx:
-                maxx = x
-        if minx > x:
-                minx = x
-        if y > maxy:
-                maxy = y
-        if miny > y:
-                miny = y
 
+pl_start = (s_pl.points[0][0], s_pl.points[0][1])
+pl_end = (s_pl.points[-1][0], s_pl.points[-1][1])
 
-# delete objID of points from polygon, in the range of maxx, minx, maxy, miny
 s_plg = plg.shape(0)
-for i in range(0,len(s_plg.points)):
-        x = s_plg.points[i][0]
-        y = s_plg.points[i][1]
-        if x < maxx and x > minx and y < maxy and y > miny:
-                print("Delete ID = " + str(i))
-                del s_plg.points[i]
+pl_start_closest = 0
+pl_end_closest = len(s_plg.points)
+pl_start_closest_distance = math.inf
+pl_end_closest_distance = math.inf
+
+print(s_plg.parts)
+s_plg_parts = s_plg.parts
+s_plg_parts2 = list(s_plg_parts[1:]) + [len(s_plg.points)]
+
+# for i in range(0, len(s_plg.points)):
+#         distance_start = math.hypot(s_plg.points[i][0] - pl_start[0], s_plg.points[i][1] - pl_start[1])
+#         distance_end = math.hypot(s_plg.points[i][0] - pl_end[0], s_plg.points[i][1] - pl_end[1])
+#         if distance_start < pl_start_closest_distance:
+#                 pl_start_closest = i
+#                 pl_start_closest_distance = distance_start
+#
+#         if distance_end < pl_end_closest_distance:
+#                 pl_end_closest = i
+#                 pl_end_closest_distance = distance_end
+#
+# print(pl_start_closest)
+# print(pl_end_closest)
+
+partIndex = 0
+for i in range(0, len(s_plg_parts)):
+        # print(s_plg_parts[i])
+        for j in range(s_plg_parts[i], s_plg_parts2[i]):
+                # print(j)
+                distance_start = math.hypot(s_plg.points[j][0] - pl_start[0], s_plg.points[j][1] - pl_start[1])
+                distance_end = math.hypot(s_plg.points[j][0] - pl_end[0], s_plg.points[j][1] - pl_end[1])
+
+                if distance_start < pl_start_closest_distance:
+                        pl_start_closest = j
+                        pl_start_closest_distance = distance_start
+                        partIndex = i + 1
+
+                if distance_end < pl_end_closest_distance:
+                        pl_end_closest = j
+                        pl_end_closest_distance = distance_end
+
+print(pl_start_closest)
+print(pl_end_closest)
 
 
-# append the pl points
-s_plg.points.append(s_pl.points)
+s_plg.points = s_plg.points[0:pl_start_closest] + s_pl.points + s_plg.points[pl_end_closest+1:]
+partOffset = pl_end_closest - pl_start_closest + 1 - len(s_pl.points)
+for i in range(partIndex, len(s_plg_parts)):
+        s_plg_parts[i] = s_plg_parts[i] - partOffset
+
+
+# s_plg.points = s_plg.points[0:366266] + [(0,0)] + s_plg.points[366266:]
+#
+plg.save(path + newPolygon)
