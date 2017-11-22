@@ -63,7 +63,7 @@ for s in range(0, pl_size):
                 if partIndex == partIndex2 and pl_start_closest_distance != math.inf and pl_end_closest_distance != math.inf:           # get the points in polygon, which are not in the range of  polyline
                         s_plg.points = s_plg.points[0:pl_start_closest] + s_pl.points + s_plg.points[pl_end_closest+1:]                 # insert the s_pl.point into s_plg.plg
                         partOffset = pl_end_closest - pl_start_closest + 1 - len(s_pl.points)                                                                                         
-                        for i in range(partIndex, len(s_plg_parts)):            # delete the original points of polygon in the range of closest start & end points
+                        for i in range(partIndex, len(s_plg_parts)):            #
                                 s_plg_parts[i] = s_plg_parts[i] - partOffset
 
 plg.save(path + new_polygon)
