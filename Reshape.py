@@ -6,10 +6,10 @@ import shapefile
 import math
 
 # variables
-path = "G:/Github/5uperReshape/test_file/"
+path = "D:/Ashley/Github/5uperReshape/test_file/"
 polyline = "COASTLINE_clip.shp"
-polygon = "COASTLINE_Polygon.shp"
-new_polygon = "COASTLINE_Polygon_New.shp"
+polygon = "COASTLINE_Polygon_Buffer.shp"
+new_polygon = "COASTLINE_Polygon_Buffer_New.shp"
 
 # load files
 # polyline
